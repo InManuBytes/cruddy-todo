@@ -59,13 +59,11 @@ const writeCounter = (count, callback) => {
 
 // the counter is set at 0 at line 5
 // so it resets to 0 every time this file reloads
-exports.getNextUniqueId = () => {
+exports.getNextUniqueId = (callback) => {
   // we have to read the counterfile and find the next available counter
   readCounter((error, previousCounter) => {
     counter = previousCounter + 1;
-    writeCounter(counter, (error, nextUniqueID) => {
-      console.log(nextUniqueID);
-    });
+    writeCounter(counter, callback);
   });
   return zeroPaddedNumber(counter);
 };

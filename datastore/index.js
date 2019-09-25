@@ -1,19 +1,28 @@
-const fs = require('fs');
-const path = require('path');
-const _ = require('underscore');
-const counter = require('./counter');
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
+const counter = require("./counter");
 
 var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
+  var id = counter.getNextUniqueId((err, idString) => {
+    var itemFile = path.join(this.dataDir, idString + '.txt');
+    console.log(itemFile);
+    fs.writeFile(itemFile, text, err => {
+      if (err) {
+        throw "error writing ToDo";
+      } else {
+        callback(null, { id, text });
+      }
+    });
+  });
   items[id] = text;
-  callback(null, { id, text });
 };
 
-exports.readAll = (callback) => {
+exports.readAll = callback => {
   var data = _.map(items, (text, id) => {
     return { id, text };
   });
@@ -52,7 +61,7 @@ exports.delete = (id, callback) => {
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
-exports.dataDir = path.join(__dirname, 'data');
+exports.dataDir = path.join(__dirname, "data");
 
 exports.initialize = () => {
   if (!fs.existsSync(exports.dataDir)) {
