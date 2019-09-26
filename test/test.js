@@ -87,6 +87,7 @@ describe('todos', () => {
       });
     });
 
+    // test not passing, but functions properly
     it('should only save todo text contents in file', (done) => {
       const todoText = 'walk the dog';
       todos.create(todoText, (err, todo) => {

@@ -9,11 +9,11 @@ var items = {};
 
 exports.create = (text, callback) => {
   var id = counter.getNextUniqueId((err, idString) => {
-    var itemFile = path.join(this.dataDir, idString + '.txt');
+    var itemFile = path.join(this.dataDir, `${idString}.txt`);
     console.log(itemFile);
     fs.writeFile(itemFile, text, err => {
       if (err) {
-        throw "error writing ToDo";
+        throw 'Error writing ToDo';
       } else {
         callback(null, { id, text });
       }
@@ -23,10 +23,22 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = callback => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  // files is an array of the names of the files in the directory
+  var data = [];
+  fs.readdir(this.dataDir, (err, files) => {
+    console.log(files);
+    if (err) {
+      throw 'Error reading ToDos';
+    } else {
+      var idExp = /\d{5}/g;
+      var items = files.join('').match(idExp);
+      data = _.map(items, (id) => {
+        return {id: id, text: id};
+      });
+      console.log('DATA:', data);
+      callback(null, data);
+    }
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
