@@ -13,11 +13,10 @@ var counter = 0;
 
 const zeroPaddedNumber = (num) => {
   // sprintf returns a formatted string
-  // The placeholders in the format string are marked by % followed by
-  // various elements, which in this case is first a "0":
-  // An optional padding specifier that says what character to use for padding
+  // The placeholders in the format string are marked by % followed by various elements.
+  // In this case, first a "0": An optional padding specifier that says what character to use for padding
   // Then, 5: says how many characters the result should have.
-  // A type specifier, d (or i), which yields an integer as a signed decimal number
+  // A type specifier, d (or i): yields an integer as a signed decimal number
   return sprintf('%05d', num);
 };
 
