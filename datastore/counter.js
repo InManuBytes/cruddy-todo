@@ -45,6 +45,7 @@ const readCounter = (callback) => {
 
 const writeCounter = (count, callback) => {
   var counterString = zeroPaddedNumber(count);
+  //console.log('writeCounter count being written:', count);
   fs.writeFile(exports.counterFile, counterString, (err) => {
     if (err) {
       throw ('error writing counter');
@@ -61,8 +62,14 @@ const writeCounter = (count, callback) => {
 exports.getNextUniqueId = (callback) => {
   // we have to read the counterfile and find the next available counter
   readCounter((error, previousCounter) => {
-    counter = previousCounter + 1;
-    writeCounter(counter, callback);
+    //console.log("readingCounter", previousCounter);
+    if (error) {
+      throw error;
+    } else {
+      counter = previousCounter + 1;
+      //console.log('next counter:', counter);
+      writeCounter(counter, callback);
+    }
   });
   return zeroPaddedNumber(counter);
 };

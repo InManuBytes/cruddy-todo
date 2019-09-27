@@ -91,7 +91,9 @@ describe('todos', () => {
     it('should only save todo text contents in file', (done) => {
       const todoText = 'walk the dog';
       todos.create(todoText, (err, todo) => {
+        //console.log('todo:', todo, 'dataDir:', todos.dataDir);
         const todoFileContents = fs.readFileSync(path.join(todos.dataDir, `${todo.id}.txt`)).toString();
+        //console.log('filecontents:', todoFileContents);
         expect(todoFileContents).to.equal(todoText);
         done();
       });
@@ -120,7 +122,7 @@ describe('todos', () => {
     it('should return an array with all saved todos', (done) => {
       const todo1text = 'todo 1';
       const todo2text = 'todo 2';
-      const expectedTodoList = [{ id: '00001', text: '00001' }, { id: '00002', text: '00002' }];
+      const expectedTodoList = [{ id: '00001', text: 'todo 1' }, { id: '00002', text: 'todo 2' }];
       todos.create(todo1text, (err, todo) => {
         todos.create(todo2text, (err, todo) => {
           todos.readAll((err, todoList) => {
@@ -146,7 +148,9 @@ describe('todos', () => {
       const todoText = 'buy chocolate';
       todos.create(todoText, (err, createdTodo) => {
         const id = createdTodo.id;
+        //console.log('createdTodo:', createdTodo); // working
         todos.readOne(id, (err, readTodo) => {
+          //console.log(readTodo);
           expect(readTodo).to.deep.equal({ id, text: todoText });
           done();
         });
