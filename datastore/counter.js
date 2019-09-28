@@ -1,6 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const sprintf = require('sprintf-js').sprintf;
+const fs = require("fs");
+const path = require("path");
+const sprintf = require("sprintf-js").sprintf;
+const Promise = require("bluebird");
 
 var counter = 0;
 
@@ -11,13 +12,13 @@ var counter = 0;
 // Wikipedia entry on Leading Zeros and check out some of code links:
 // https://www.google.com/search?q=what+is+a+zero+padded+number%3F
 
-const zeroPaddedNumber = (num) => {
+const zeroPaddedNumber = num => {
   // sprintf returns a formatted string
   // The placeholders in the format string are marked by % followed by various elements.
   // In this case, first a "0": An optional padding specifier that says what character to use for padding
   // Then, 5: says how many characters the result should have.
   // A type specifier, d (or i): yields an integer as a signed decimal number
-  return sprintf('%05d', num);
+  return sprintf("%05d", num);
 };
 
 // Node.js core modules, as well as most of the community-published ones,
@@ -33,25 +34,29 @@ const zeroPaddedNumber = (num) => {
 //   // no error, perform standard callback handling
 //   }
 
-const readCounter = (callback) => {
-  fs.readFile(exports.counterFile, (err, fileData) => {
-    if (err) {
-      callback(null, 0);
-    } else {
-      callback(null, Number(fileData));
-    }
+const readCounter = () => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(exports.counterFile, (err, fileData) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(Number(fileData));
+      }
+    });
   });
 };
 
-const writeCounter = (count, callback) => {
-  var counterString = zeroPaddedNumber(count);
+const writeCounter = (counterString) => {
+  //var counterString = zeroPaddedNumber(count); -> don't need this with promise refactor
   //console.log('writeCounter count being written:', count);
-  fs.writeFile(exports.counterFile, counterString, (err) => {
-    if (err) {
-      throw ('error writing counter');
-    } else {
-      callback(null, counterString);
-    }
+  return new Promise((resolve, reject) => {
+    fs.writeFile(exports.counterFile, counterString, err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(counterString);
+      }
+    });
   });
 };
 
@@ -59,23 +64,25 @@ const writeCounter = (count, callback) => {
 
 // the counter is set at 0 at line 5
 // so it resets to 0 every time this file reloads
-exports.getNextUniqueId = (callback) => {
+// exports.getNextUniqueId = callback => {
+// before refactoring the callback was here and line 81
+exports.getNextUniqueId = callback => {
   // we have to read the counterfile and find the next available counter
-  readCounter((error, previousCounter) => {
-    //console.log("readingCounter", previousCounter);
-    if (error) {
-      throw error;
-    } else {
-      counter = previousCounter + 1;
-      //console.log('next counter:', counter);
-      writeCounter(counter, callback);
-    }
-  });
-  return zeroPaddedNumber(counter);
+  return readCounter()
+    // we have resolve(Number(fileData)), where Number(fileData) => count
+    .then((count) => {
+      count++;
+      return zeroPaddedNumber(count);
+    })
+    .then( (counterString) => {
+      return writeCounter(counterString);
+    })
+    .then( (counterString) => {
+      //callback(null, counterString);
+      return counterString;
+    });
 };
-
-
 
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 
-exports.counterFile = path.join(__dirname, 'counter.txt');
+exports.counterFile = path.join(__dirname, "counter.txt");

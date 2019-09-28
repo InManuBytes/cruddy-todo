@@ -9,7 +9,8 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId((err, idString) => {
+  var id = counter.getNextUniqueId();
+  id.then( (idString) => {
     if (err) {
       throw new Error('Error creating Todo');
     } else {
@@ -19,12 +20,12 @@ exports.create = (text, callback) => {
         if (err) {
           throw new Error('Error writing ToDo');
         } else {
+          items[id] = text;
           callback(null, { id: idString, text });
         }
       });
     }
   });
-  items[id] = text;
 };
 
 exports.readAll = callback => {
